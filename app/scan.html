@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AppMap latent defects: __REPO__</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #030712; color: #e5e7eb; font: 16px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+  nav { background: #111827; border-bottom: 1px solid #1f2937; padding: 0 1.5rem; height: 3rem; display: flex; align-items: center; gap: 1.25rem; }
+  nav b { color: #60a5fa; margin-right: .5rem; }
+  nav a { color: #d1d5db; text-decoration: none; font-size: .95rem; }
+  nav a.on { background: #2563eb; color: #fff; padding: .25rem .6rem; border-radius: .35rem; }
+  main { max-width: 60rem; margin: 0 auto; padding: 1.5rem; }
+  .intro { color: #9ca3af; font-size: .95rem; margin-bottom: 1.25rem; }
+  .intro code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
+
+  /* A GitHub pull-request review comment. */
+  .pr { display: flex; gap: .75rem; align-items: flex-start; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); flex: none; display: grid; place-items: center; font-weight: 700; color: #fff; }
+  .comment { flex: 1; min-width: 0; border: 1px solid #30363d; border-radius: 6px; background: #0d1117; }
+  .comment .head { background: #161b22; border-bottom: 1px solid #30363d; border-radius: 6px 6px 0 0; padding: .5rem 1rem; display: flex; align-items: center; gap: .5rem; font-size: .9rem; color: #8b949e; flex-wrap: wrap; }
+  .comment .head b { color: #e6edf3; }
+  .badge { border: 1px solid #30363d; border-radius: 2em; padding: 0 .5rem; font-size: .75rem; line-height: 1.5; }
+  .badge.bot { color: #8b949e; }
+  .badge.state { color: #f0883e; border-color: #f0883e; margin-left: auto; }
+  .body { padding: 1rem; font-size: .95rem; line-height: 1.6; overflow-x: auto; }
+  .body h1 { font-size: 1.4rem; border-bottom: 1px solid #30363d; padding-bottom: .4rem; margin-top: 0; }
+  .body h2 { font-size: 1.2rem; border-bottom: 1px solid #30363d; padding-bottom: .3rem; margin-top: 1.6rem; }
+  .body h3 { font-size: 1.05rem; margin-top: 1.4rem; }
+  .body blockquote { margin: 0 0 1rem; padding: 0 1rem; color: #8b949e; border-left: .25rem solid #30363d; }
+  .body table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; margin: .5rem 0 1rem; }
+  .body th, .body td { border: 1px solid #30363d; padding: .4rem .8rem; text-align: left; vertical-align: top; }
+  .body th { background: #161b22; }
+  .body tr:nth-child(2n) { background: #161b22; }
+  .body code { background: rgba(110,118,129,.4); padding: .1rem .3rem; border-radius: 6px; font-size: .88em; }
+  .body pre { background: #161b22; border-radius: 6px; padding: .8rem 1rem; overflow-x: auto; line-height: 1.45; }
+  .body pre code { background: none; padding: 0; font-size: .85em; }
+  .body a { color: #58a6ff; }
+  .body details { border: 1px solid #30363d; border-radius: 6px; padding: .5rem 1rem; margin: 1rem 0; }
+  .body summary { cursor: pointer; }
+  .body img { max-width: 100%; }
+  .body hr { border: 0; border-top: 1px solid #30363d; }
+  .legend { margin-top: 1.5rem; color: #9ca3af; font-size: .9rem; }
+  @media (max-width: 820px) { nav { height: auto; flex-wrap: wrap; gap: .5rem .9rem; padding: .6rem 1rem; } main { padding: 1rem; } section { padding: 1rem; } h1 { font-size: 1.4rem; } pre { white-space: pre-wrap; word-break: break-word; } table { display: block; overflow-x: auto; } }
+  .placeholder { border: 1px dashed #374151; border-radius: 6px; padding: 1.25rem 1.5rem; color: #d1d5db; }
+  .placeholder h2 { margin-top: 0; font-size: 1.1rem; }
+  .placeholder code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
+  .placeholder table { border-collapse: collapse; margin: .75rem 0; font-size: .9rem; }
+  .placeholder th, .placeholder td { border: 1px solid #30363d; padding: .35rem .7rem; text-align: left; vertical-align: top; }
+  .findings { margin-top: 1.5rem; }
+  .findings pre { background: #161b22; border-radius: 6px; padding: .8rem 1rem; overflow-x: auto; font-size: .85em; }
+  body[data-state="placeholder"] .when-report, body[data-state="report"] .when-placeholder { display: none; }
+</style>
+</head>
+<body data-state="__STATE__">
+<nav>
+  <b>AppMap</b>
+  <a class="on" href="/review">Report</a>
+  <a href="/">Dashboard</a>
+  <a href="/recordings">Recordings</a>
+  <a href="/sql">SQL</a>
+  <a href="/functions">Functions</a>
+</nav>
+<main>
+  <p class="intro">The standing latent-defect report for <a href="__REPO_URL__" target="_blank">__REPO__</a>: the AppMap scan skill reads the
+  gold traces of the default branch at one revision against what the code is meant to do, and writes findings-first fix tickets.
+  Unlike a pull request review nothing is compared with an earlier revision; every finding exists on the branch as it stands.</p>
+
+  <div class="when-report">
+    <div class="pr">
+      <div class="avatar" title="appmap">A</div>
+      <div class="comment">
+        <div class="head"><b>appmap</b> <span class="badge bot">bot</span> scanned <span>__COMMIT__</span> <span>__NOTE__</span>
+          <span>__DATE__</span><span class="badge state">__SEVERITY__</span></div>
+        <div class="body">__REPORT_BODY__</div>
+      </div>
+    </div>
+    <details class="findings"><summary><code>gold_traces/findings.yml</code>: the committed record of every finding and the decision taken on it</summary>
+      <pre>__FINDINGS_YML__</pre></details>
+  </div>
+
+  <div class="when-placeholder placeholder">
+    <h2>No scan has been published for this repository yet</h2>
+    <p>When the first <code>appmap-scan</code> run lands, this page shows the report it renders and the lifecycle of each finding.
+    The CI job publishes these files under <code>reports/&lt;repo&gt;/scan/</code>:</p>
+    <table>
+      <tr><th><code>SCAN.md</code></th><td>The report: summary table, then one action item per 🔴/🟡 finding (where, expected, actual, evidence, done when).</td></tr>
+      <tr><th><code>findings.yml</code></th><td>One record per finding with <code>status</code> (open, dismissed, linked, fixed), <code>chain</code> (finding → accepted → fix → fix-trace) and <code>next_action</code>. Decisions are made in the repository, not here.</td></tr>
+      <tr><th><code>appmaps/</code></th><td>The gold traces and the probe recordings the scan read, so every cited recording opens in the tabs above.</td></tr>
+      <tr><th><code>scan.json</code></th><td><code>{ commit, date, note }</code>: which revision of the default branch was scanned.</td></tr>
+    </table>
+    <p>Until then, pick a pull request review from the list at the top of the page.</p>
+  </div>
+</main>
+</body>
+</html>

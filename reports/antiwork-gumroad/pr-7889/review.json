@@ -1,0 +1,15 @@
+{
+  "pr": 7889,
+  "title": "Close an account whose owned records no longer validate",
+  "url": "https://github.com/antiwork/gumroad/pull/7889",
+  "date": "22 Sep 2026",
+  "base": {
+    "commit": "63561f5c4",
+    "note": "main before the change (22 Sep 2026)"
+  },
+  "head": {
+    "commit": "eb57d3de6",
+    "note": "main after pull requests 7889 \"Close an account whose owned records no longer validate\" and its follow-up 7892 \"Keep account closure working with invalid profile sections\" (both merged 22 Sep 2026)"
+  },
+  "source": "https://github.com/evlawler/goldtrace-examples/tree/main/gumroad-closure-blocked-by-invalid-owned-record"
+}

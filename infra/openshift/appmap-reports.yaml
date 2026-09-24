@@ -1,0 +1,122 @@
+# AppMap reports viewer on OpenShift.
+#
+#   oc new-project appmap-reports
+#   oc apply -f infra/openshift/appmap-reports.yaml
+#   oc start-build appmap-reports --follow
+#
+# The BuildConfig clones this repository (set `git.uri`) and builds app/Dockerfile,
+# so the image contains the reports that were committed under reports/ at build time.
+# Rebuild (or trigger the build from CI) whenever a new report lands.
+#
+# The image runs as an arbitrary UID under the restricted SCC: /srv is group 0 and
+# group-writable, HOME is /tmp, nothing else is written at runtime.
+#
+# Confluence: set FRAME_ANCESTORS to the Confluence origin(s) so the app can be shown
+# in an iframe macro; leave it empty to allow any embedding; use 'none' to forbid.
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: appmap-reports
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: appmap-reports
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/evlawler/appmap-playground-selfhost.git
+      ref: main
+    # For a private repository: oc create secret generic repo-creds --from-literal=... ; then
+    # sourceSecret:
+    #   name: repo-creds
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: app/Dockerfile
+      # Behind a proxy or an internal npm mirror, pass build args / env here, e.g.
+      # env:
+      #   - name: NPM_CONFIG_REGISTRY
+      #     value: https://nexus.internal/repository/npm/
+  output:
+    to:
+      kind: ImageStreamTag
+      name: appmap-reports:latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appmap-reports
+  labels:
+    app: appmap-reports
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appmap-reports
+  template:
+    metadata:
+      labels:
+        app: appmap-reports
+      annotations:
+        # Redeploy when the ImageStream gets a new :latest.
+        image.openshift.io/triggers: >-
+          [{"from":{"kind":"ImageStreamTag","name":"appmap-reports:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"app\")].image"}]
+    spec:
+      containers:
+        - name: app
+          image: appmap-reports:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: FRAME_ANCESTORS
+              value: "" # e.g. "https://confluence.example.com"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appmap-reports
+spec:
+  selector:
+    app: appmap-reports
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: appmap-reports
+spec:
+  to:
+    kind: Service
+    name: appmap-reports
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -1,0 +1,15 @@
+{
+  "pr": 7784,
+  "title": "Clear the team-member staff flag when an account is closed",
+  "url": "https://github.com/antiwork/gumroad/pull/7784",
+  "date": "18 Sep 2026",
+  "base": {
+    "commit": "efc357177",
+    "note": "main before the change (committed 2026-09-18 12:51:51 EDT)"
+  },
+  "head": {
+    "commit": "c8daccf9d",
+    "note": "main after the change, the squash merge of pull request 7784 (2026-09-18 13:45:01 EDT)"
+  },
+  "source": "https://github.com/evlawler/goldtrace-examples/tree/main/gumroad-closed-account-keeps-staff-flag"
+}

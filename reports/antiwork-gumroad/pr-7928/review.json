@@ -1,0 +1,15 @@
+{
+  "pr": 7928,
+  "title": "Require the buyer's download token to write a purchase custom field",
+  "url": "https://github.com/antiwork/gumroad/pull/7928",
+  "date": "24 Sep 2026",
+  "base": {
+    "commit": "01223f018",
+    "note": "main before pull request 7928"
+  },
+  "head": {
+    "commit": "e10f290ca",
+    "note": "main after pull request 7928 (24 Sep 2026), the download page's other write, POST /purchase_custom_fields, now requires the buyer's token"
+  },
+  "source": "https://github.com/evlawler/goldtrace-examples/tree/main/gumroad-consumption-event-written-to-any-purchase"
+}
