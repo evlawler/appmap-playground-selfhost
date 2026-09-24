@@ -70,6 +70,7 @@ ENTRIES.forEach((e, i) => {
   } else {
     const findings = fs.existsSync(build('findings.yml')) ? fs.readFileSync(build('findings.yml'), 'utf8') : '';
     e.pageHtml = withBar(common(SCAN_TEMPLATE)
+      .replace(/__BRANCH__/g, esc(e.branch || 'main'))
       .replace(/__COMMIT__/g, esc((e.commit || '').slice(0, 10)))
       .replace(/__DATE__/g, esc(e.date))
       .replace(/__NOTE__/g, esc(e.note))
@@ -165,7 +166,7 @@ const json = (res, obj) => { res.writeHead(200, { 'content-type': 'application/j
 const publicEntry = (e) => ({
   id: e.id, kind: e.kind, repo: e.repo, repoUrl: e.repoUrl, language: e.language, title: e.title, pr: e.pr, url: e.url, date: e.date,
   severity: e.severity, recordings: e.recordings, hasTraces: e.hasTraces, hasReport: e.kind === 'pr' ? true : e.hasReport,
-  base: e.base && e.base.commit, head: e.head && e.head.commit, commit: e.commit,
+  base: e.base && e.base.commit, head: e.head && e.head.commit, commit: e.commit, branch: e.branch,
 });
 
 http

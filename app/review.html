@@ -13,6 +13,11 @@
   nav a.on { background: #2563eb; color: #fff; padding: .25rem .6rem; border-radius: .35rem; }
   main { max-width: 60rem; margin: 0 auto; padding: 1.5rem; }
   .intro { color: #9ca3af; font-size: .95rem; margin-bottom: 1.25rem; }
+  .scope { display: flex; align-items: center; gap: .7rem; margin: 0 0 1rem; flex-wrap: wrap; }
+  .scope h1 { font-size: 1.25rem; margin: 0; }
+  .scope .kind { font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: .2rem .55rem; border-radius: .3rem; text-transform: uppercase; }
+  .scope .kind.scan { background: #3b2f0b; color: #fbbf24; } .scope .kind.pr { background: #0c2a4d; color: #7dd3fc; }
+  .scope code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
   .intro code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
 
   /* A GitHub pull-request review comment. */
@@ -48,7 +53,7 @@
 <body>
 <nav>
   <b>AppMap</b>
-  <a class="on" href="/review">Report</a>
+  <a class="on" href="/review">PR #__PR__ review</a>
   <a href="/">Dashboard</a>
   <a href="/recordings">Recordings</a>
   <a href="/sql">SQL</a>
@@ -56,6 +61,7 @@
   <a href="/compare">Compare</a>
 </nav>
 <main>
+  <div class="scope"><span class="kind pr">PR review</span><h1>__REPO__ <a href="__PR_URL__" target="_blank">#__PR__</a></h1><span>base <code>__BASE__</code> → head <code>__HEAD__</code></span></div>
   <p class="intro">The review the AppMap review skill posted on <a href="__PR_URL__" target="_blank">__REPO__#__PR__</a>
   (<i>__PR_TITLE__</i>): the gold traces recorded on <code>base</code> (__BASE__) and <code>head</code> (__HEAD__) compared,
   findings graded 🔴 high / 🟡 medium / 🟢 low, then the checks it ran. Everything it cites is in the __RECORDINGS__ recordings
