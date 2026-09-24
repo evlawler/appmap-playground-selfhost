@@ -18,11 +18,14 @@ COPY reports ./reports
 # Per entry: one trace directory holding the recordings (a PR review: both sides of the change,
 # each stamped base|head so the query UI can compare them; a scan: the default branch), indexed
 # at build time, plus the report rendered to HTML and entries.json for the server.
-RUN node build.js reports build && rm -rf reports \
- && chgrp -R 0 /srv && chmod -R g=u /srv
+# The CLI keeps each trace directory's query DB (SQLite, WAL mode) under $HOME/.appmap, so HOME
+# is fixed to a path inside the image. Opening a WAL database, even read-only, creates -wal/-shm
+# files beside it, so that directory must be writable by whatever UID:GID runs the container
+# (OpenShift: arbitrary UID in group 0; Fly: 1001:1001).
+ENV HOME=/srv/home
+RUN mkdir -p /srv/home && node build.js reports build && rm -rf reports \
+ && chgrp -R 0 /srv && chmod -R g=u /srv && chmod -R a+rwX /srv/home
 
-# The AppMap CLI writes its cache next to the traces; keep HOME writable for any UID.
-ENV HOME=/tmp
 ENV PORT=8080
 EXPOSE 8080
 USER 1001

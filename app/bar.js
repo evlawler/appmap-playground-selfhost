@@ -1,9 +1,9 @@
 // Entry bar. Injected into every page (the query UI via the proxy, the report page directly).
 // A fixed banner across the top: which repository and pull request the recordings on this page
 // belong to (so "base" and "head" in Compare always have a name), and a picker listing every
-// published report, grouped by repository: the standing latent-defect scan first, then one
-// review per pull request, most severe first. Switching sets the server-side cookie for this
-// browser and reloads the same page against the other entry's recordings.
+// published report, grouped by repository the way git does: the default branch (the standing
+// latent-defect scan) first, then the pull requests branching off it, most severe first.
+// Switching sets the server-side cookie for this browser and reloads the same page against the other entry's recordings.
 (function () {
   if (window.__appmapBar) return;
   window.__appmapBar = true;
@@ -24,12 +24,14 @@
   a:hover { text-decoration: underline; }
   select { max-width: 34rem; min-width: 0; background: #111827; color: #e5e7eb; border: 1px solid #374151; border-radius: .4rem; padding: .3rem .5rem; font: inherit; }
   .tag { font-size: 11px; padding: .1rem .45rem; border-radius: 999px; border: 1px solid #374151; color: #d1d5db; }
+  .kind { font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: .15rem .5rem; border-radius: .3rem; text-transform: uppercase; }
+  .kind.scan { background: #3b2f0b; color: #fbbf24; } .kind.pr { background: #0c2a4d; color: #7dd3fc; }
   code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #d1d5db; }
   .who { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .grow { flex: 1; }
   @media (max-width: ${MOBILE}px) { :host { gap: .5rem; padding: 0 .75rem; font-size: 12px; } .who, .tag { display: none; } select { max-width: 100%; flex: 1; } }
 </style>
-<select id="entries" title="Report"></select><span class="tag" id="tag"></span><span class="who" id="who"></span><span class="grow"></span><a href="/review" id="report">Report</a>`;
+<select id="entries" title="Report"></select><span class="kind" id="kind"></span><span class="tag" id="tag"></span><span class="who" id="who"></span><span class="grow"></span><a href="/review" id="report">Report</a>`;
   document.documentElement.appendChild(bar);
   document.documentElement.style.marginTop = BAR + 'px';
 
@@ -37,9 +39,14 @@
   const picker = $('entries');
   picker.onchange = () => { location.href = '/e/' + picker.value + '?to=' + encodeURIComponent(location.pathname); };
 
+  const short = (s) => (s || '').slice(0, 7);
+  // Picker rows read like `git log --graph`: the branch on top, each PR hanging off it.
   const label = (e) => e.kind === 'scan'
-    ? (DOT[e.severity] || '') + 'Latent defects on ' + (e.repo.split('/').pop()) + (e.hasReport ? '' : ' (no scan yet)')
-    : (DOT[e.severity] || '') + 'PR #' + e.pr + ': ' + e.title;
+    ? (DOT[e.severity] || '') + (e.branch || 'main') + ' \u00b7 Latent defects' + (e.hasReport ? ' @ ' + short(e.commit) + (e.date ? ' (' + e.date + ')' : '') : ' (no scan yet)')
+    : '\u2003\u2514 ' + (DOT[e.severity] || '') + 'PR #' + e.pr + ' \u00b7 ' + e.title;
+  // What the report page is, by kind; used for the nav link and the badge.
+  const reportName = (e) => (e.kind === 'scan' ? 'Latent defects' : 'PR #' + e.pr + ' review');
+  let current = null;
 
   fetch('/api/entries').then((r) => r.json()).then((d) => {
     const groups = new Map();
@@ -52,29 +59,37 @@
     }
     const cur = d.entries.find((e) => e.id === d.current);
     if (!cur) return;
-    const short = (s) => (s || '').slice(0, 7);
+    current = cur;
+    $('kind').textContent = cur.kind === 'scan' ? 'latent defects' : 'PR review';
+    $('kind').className = 'kind ' + cur.kind;
+    $('report').textContent = reportName(cur);
     if (cur.kind === 'pr') {
       $('who').innerHTML = '<b>' + esc(cur.repo) + '</b> <a href="' + esc(cur.url) + '" target="_blank">#' + cur.pr + '</a>' +
-        ' · <code>base</code> = ' + short(cur.base) + ' → <code>head</code> = ' + short(cur.head) + ' · ' + cur.recordings + ' recordings';
+        ' · <code>base</code> ' + short(cur.base) + ' → <code>head</code> ' + short(cur.head) + ' · ' + cur.recordings + ' recordings';
     } else {
-      $('who').innerHTML = '<b>' + esc(cur.repo) + '</b> latent defects' + (cur.commit ? ' · <code>' + short(cur.commit) + '</code>' : '') + (cur.recordings ? ' · ' + cur.recordings + ' recordings' : '');
+      $('who').innerHTML = '<b>' + esc(cur.repo) + '</b> @ <code>' + esc(cur.branch || 'main') + '</code>' + (cur.commit ? ' <code>' + short(cur.commit) + '</code>' : '') + (cur.recordings ? ' · ' + cur.recordings + ' recordings' : '');
     }
+    addNavLink();
     $('tag').textContent = ({ 3: 'high', 2: 'medium', 1: 'low' }[cur.severity] || (cur.hasReport ? 'no findings' : 'pending')) + (cur.language ? ' · ' + cur.language : '');
   }).catch(() => {});
 
-  // The query UI's own nav has no idea about the report; add it.
+  // The query UI's own nav has no idea about the report; add it, named after what it shows.
   function addNavLink() {
     const nav = document.querySelector('nav');
-    if (!nav || nav.querySelector('a[href="/review"]')) return;
-    const dash = nav.querySelector('a[href="/"]');
-    if (!dash) return;
-    const a = dash.cloneNode(true); a.href = '/review'; a.textContent = 'Report';
-    a.className = dash.className.replace(/\bbg-\S+|\btext-white\b/g, '').trim();
-    dash.parentNode.insertBefore(a, dash);
+    if (!nav) return;
+    let a = nav.querySelector('a[href="/review"]');
+    if (!a) {
+      const dash = nav.querySelector('a[href="/"]');
+      if (!dash) return;
+      a = dash.cloneNode(true); a.href = '/review';
+      a.className = dash.className.replace(/\bbg-\S+|\btext-white\b/g, '').trim();
+      dash.parentNode.insertBefore(a, dash);
+    }
+    if (current && a.textContent !== reportName(current)) a.textContent = reportName(current);
   }
-  // Every entry is recorded as branches "base" and "head"; prefill Compare so nobody has to know that.
+  // A PR is recorded as branches "base" and "head"; prefill Compare so nobody has to know that.
   function prefillCompare() {
-    if (location.pathname.replace(/\/$/, '') !== '/compare') return;
+    if (!current || current.kind !== 'pr' || location.pathname.replace(/\/$/, '') !== '/compare') return;
     const inputs = document.querySelectorAll('main input');
     if (inputs.length < 2 || inputs[0].value || inputs[1].value) return;
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
