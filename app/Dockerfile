@@ -18,11 +18,12 @@ COPY reports ./reports
 # Per entry: one trace directory holding the recordings (a PR review: both sides of the change,
 # each stamped base|head so the query UI can compare them; a scan: the default branch), indexed
 # at build time, plus the report rendered to HTML and entries.json for the server.
-RUN node build.js reports build && rm -rf reports \
+# The CLI keeps each trace directory's query DB under $HOME/.appmap, so HOME is fixed to a
+# path inside the image that stays group-writable for whatever UID runs the container.
+ENV HOME=/srv/home
+RUN mkdir -p /srv/home && node build.js reports build && rm -rf reports \
  && chgrp -R 0 /srv && chmod -R g=u /srv
 
-# The AppMap CLI writes its cache next to the traces; keep HOME writable for any UID.
-ENV HOME=/tmp
 ENV PORT=8080
 EXPOSE 8080
 USER 1001
