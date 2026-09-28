@@ -109,7 +109,7 @@ for (const repoSlug of fs.readdirSync(reportsDir).sort()) {
     const report = hasReport ? fs.readFileSync(path.join(scanDir, 'SCAN.md'), 'utf8') : '';
     entries.push({
       id, kind: 'scan', repo: repo.name, repoSlug, repoUrl, language: LANGUAGE[language.toLowerCase()] || language || repo.language || '',
-      title: `Latent defects on ${repo.defaultBranch}`,
+      title: `Latent defects on ${repo.defaultBranch}`, branch: repo.defaultBranch,
       commit: (meta && meta.commit) || '', date: (meta && meta.date) || '', note: (meta && meta.note) || '',
       hasReport, hasFindings: exists(path.join(scanDir, 'findings.yml')), recordings, severity: hasReport ? severity(report) : 0,
     });

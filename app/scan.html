@@ -13,6 +13,11 @@
   nav a.on { background: #2563eb; color: #fff; padding: .25rem .6rem; border-radius: .35rem; }
   main { max-width: 60rem; margin: 0 auto; padding: 1.5rem; }
   .intro { color: #9ca3af; font-size: .95rem; margin-bottom: 1.25rem; }
+  .scope { display: flex; align-items: center; gap: .7rem; margin: 0 0 1rem; flex-wrap: wrap; }
+  .scope h1 { font-size: 1.25rem; margin: 0; }
+  .scope .kind { font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: .2rem .55rem; border-radius: .3rem; text-transform: uppercase; }
+  .scope .kind.scan { background: #3b2f0b; color: #fbbf24; } .scope .kind.pr { background: #0c2a4d; color: #7dd3fc; }
+  .scope code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
   .intro code { background: #1f2937; padding: 0 .3rem; border-radius: .25rem; }
 
   /* A GitHub pull-request review comment. */
@@ -56,13 +61,14 @@
 <body data-state="__STATE__">
 <nav>
   <b>AppMap</b>
-  <a class="on" href="/review">Report</a>
+  <a class="on" href="/review">Latent defects</a>
   <a href="/">Dashboard</a>
   <a href="/recordings">Recordings</a>
   <a href="/sql">SQL</a>
   <a href="/functions">Functions</a>
 </nav>
 <main>
+  <div class="scope"><span class="kind scan">Latent defects</span><h1><a href="__REPO_URL__" target="_blank">__REPO__</a> @ <code>__BRANCH__</code></h1><span class="when-report">scanned <code>__COMMIT__</code> __DATE__</span><span class="when-placeholder">no scan published yet</span></div>
   <p class="intro">The standing latent-defect report for <a href="__REPO_URL__" target="_blank">__REPO__</a>: the AppMap scan skill reads the
   gold traces of the default branch at one revision against what the code is meant to do, and writes findings-first fix tickets.
   Unlike a pull request review nothing is compared with an earlier revision; every finding exists on the branch as it stands.</p>
