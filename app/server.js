@@ -45,7 +45,9 @@ ENTRIES.forEach((e, i) => {
   const build = (f) => path.join(BUILD, e.id, f);
   // Reports link files relative to the checkout they were written in; point them at the commit.
   const commit = e.kind === 'pr' ? e.head.commit : e.commit;
-  const absolutize = (html) => html.replace(/href="(?!https?:|#|\/|mailto:)([^"]+)"/g, (m, p) => `href="${e.repoUrl}/blob/${commit || 'HEAD'}/${p}" target="_blank"`);
+  const absolutize = (html) => html
+    .replace(/href="(?!https?:|#|\/|mailto:)([^"]+)"/g, (m, p) => `href="${e.repoUrl}/blob/${commit || 'HEAD'}/${p}"`)
+    .replace(/<a href="https?:[^"]*"/g, (m) => `${m} target="_blank" rel="noopener"`);
   // GitHub folds the review detail (coverage matrix, drift); here it is the point, so open it.
   const body = (f) => (fs.existsSync(build(f)) ? absolutize(fs.readFileSync(build(f), 'utf8')).replace(/<details>/g, '<details open>') : '');
   const common = (html) => html
